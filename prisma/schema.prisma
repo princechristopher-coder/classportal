@@ -1,0 +1,207 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model User {
+  id          String       @id @default(cuid())
+  fullName    String
+  email       String       @unique
+  password    String
+  avatar      String?
+  role        Role         @default(STUDENT)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  enrollments Enrollment[]
+  progress    LessonProgress[]
+  certificates Certificate[]
+  payments    Payment[]
+  resetTokens PasswordResetToken[]
+  testAttempts TestAttempt[]
+}
+
+model Course {
+  id          String       @id @default(cuid())
+  title       String
+  slug        String       @unique
+  description String
+  thumbnail   String?
+  price       Float        @default(0)
+  level       CourseLevel  @default(BEGINNER)
+  published   Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  lessons     Lesson[]
+  enrollments Enrollment[]
+  certificates Certificate[]
+  payments    Payment[]
+}
+
+model Lesson {
+  id          String   @id @default(cuid())
+  title       String
+  videoUrl    String
+  description String?
+  duration    Int      @default(0)
+  isFree      Boolean  @default(false)
+  notes       String?
+  quizUrl     String?
+  order       Int      @default(0)
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  progress    LessonProgress[]
+
+  @@index([courseId])
+}
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  progress  Float    @default(0)
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+}
+
+model LessonProgress {
+  id             String    @id @default(cuid())
+  userId         String
+  lessonId       String
+  currentTime    Float     @default(0)
+  watchedPercent Float     @default(0)
+  completed      Boolean   @default(false)
+  completedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson         Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+}
+
+model Certificate {
+  id            String   @id @default(cuid())
+  certificateNo String   @unique
+  issuedAt      DateTime @default(now())
+  userId        String
+  courseId      String
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course        Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  userId        String
+  courseId      String
+  amount        Float
+  status        PaymentStatus @default(PENDING)
+  reference     String        @unique
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course        Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CertificateCounter {
+  id     String @id @default("singleton")
+  value  Int    @default(0)
+}
+
+model Test {
+  id           String    @id @default(cuid())
+  title        String
+  description  String?
+  durationMins Int       @default(30)
+  maxAttempts  Int       @default(1)
+  passMark     Int       @default(50)
+  showReview   Boolean   @default(true)
+  published    Boolean   @default(false)
+  opensAt      DateTime?
+  closesAt     DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  questions    TestQuestion[]
+  attempts     TestAttempt[]
+}
+
+model TestQuestion {
+  id           String  @id @default(cuid())
+  testId       String
+  order        Int     @default(0)
+  topic        String?
+  text         String
+  options      Json
+  correctIndex Int
+  explanation  String?
+
+  test         Test    @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@index([testId])
+}
+
+model TestAttempt {
+  id          String    @id @default(cuid())
+  testId      String
+  userId      String
+  startedAt   DateTime  @default(now())
+  submittedAt DateTime?
+  score       Int?
+  total       Int?
+  answers     Json      @default("{}")
+  timedOut    Boolean   @default(false)
+
+  test        Test      @relation(fields: [testId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([testId])
+  @@index([userId, testId])
+}

@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-cf-black text-cf-white antialiased;
+  font-family: var(--font-sans), 'Inter', system-ui, sans-serif;
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display), 'Playfair Display', Georgia, serif;
+}
+
+.font-script {
+  font-family: var(--font-script), 'Dancing Script', cursive;
+}
+
+::selection {
+  background: #c81e3a;
+  color: #fff;
+}
+
+.glass {
+  background: rgba(20, 20, 22, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.gold-border {
+  border: 1px solid rgba(212, 175, 55, 0.35);
+}
+
+.text-gradient-gold {
+  background: linear-gradient(90deg, #d4af37, #f1d67a, #d4af37);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.4);
+  border-radius: 999px;
+}
+
+/* ---------- Certificate print styles ---------- */
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  #certificate-print-root,
+  #certificate-print-root * {
+    visibility: visible;
+  }
+
+  #certificate-print-root {
+    position: fixed;
+    inset: 0;
+    width: 297mm;
+    height: 210mm;
+    margin: 0;
+    padding: 0;
+    background: white !important;
+    box-shadow: none !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
