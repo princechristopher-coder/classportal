@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Spinner } from '@/components/ui/index';
+import MobileNavMenu from '@/components/layout/MobileNavMenu';
 import { SITE_NAME, SITE_MONOGRAM } from '@/lib/site-config';
 
 const navItems = [
@@ -64,6 +65,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </nav>
         </aside>
         <main className="min-w-0 flex-1">
+          <MobileNavMenu
+            rootHref="/dashboard"
+            heading="Student Dashboard"
+            items={[...navItems, { href: '/courses', label: 'Browse Courses', icon: '▸' }]}
+          />
           <div className="mb-6 flex items-center justify-between">
             <div>
               <p className="text-sm text-white/40">Welcome back</p>

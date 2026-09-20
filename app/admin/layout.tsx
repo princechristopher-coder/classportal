@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Spinner } from '@/components/ui/index';
+import MobileNavMenu from '@/components/layout/MobileNavMenu';
 import { SITE_NAME, SITE_MONOGRAM } from '@/lib/site-config';
 
 const navItems = [
@@ -12,6 +13,7 @@ const navItems = [
   { href: '/admin/users', label: 'Users', icon: '☺' },
   { href: '/admin/courses', label: 'Courses', icon: '▤' },
   { href: '/admin/tests', label: 'Tests', icon: '✎' },
+  { href: '/admin/results', label: 'Scores', icon: '★' },
   { href: '/admin/payments', label: 'Payments', icon: '$' }
 ];
 
@@ -67,7 +69,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </Link>
           </nav>
         </aside>
-        <main className="min-w-0 flex-1">{children}</main>
+        <main className="min-w-0 flex-1">
+          <MobileNavMenu
+            rootHref="/admin"
+            heading="Admin Panel"
+            items={[...navItems, { href: '/dashboard', label: 'Student Dashboard', icon: '▸' }]}
+          />
+          {children}
+        </main>
       </div>
     </div>
   );
