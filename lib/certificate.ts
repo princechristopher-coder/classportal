@@ -1,3 +1,4 @@
+import type { Prisma } from '@prisma/client';
 import { prisma } from './prisma';
 
 /**
@@ -10,7 +11,7 @@ import { prisma } from './prisma';
 export async function generateCertificateNumber(): Promise<string> {
   const year = new Date().getFullYear();
 
-  const counter = await prisma.$transaction(async (tx: typeof prisma) => {
+  const counter = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const existing = await tx.certificateCounter.upsert({
       where: { id: 'singleton' },
       create: { id: 'singleton', value: 1 },
