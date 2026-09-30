@@ -47,20 +47,57 @@ export default function VideoPlayer({
     [lessonId]
   );
 
-  // Resume playback position once metadata is loaded.
+  // Resume playback position once the video can actually play.
+  //
+  // We used to seek on 'loadedmetadata', but jumping ahead before any video
+  // data is buffered can make some hosts/browsers (especially on mobile)
+  // stall forever trying to fetch that range — the video looks like it will
+  // never play. Waiting for 'canplay', wrapping the seek in try/catch, and
+  // giving up after a few seconds keeps a bad resume from blocking playback.
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    const onLoadedMetadata = () => {
-      if (initialCurrentTime > 0 && initialCurrentTime < video.duration - 1) {
-        video.currentTime = initialCurrentTime;
-      }
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
       setRestored(true);
+      clearTimeout(giveUpTimer);
+      video.removeEventListener('canplay', onCanPlay);
+      video.removeEventListener('error', finish);
     };
 
-    video.addEventListener('loadedmetadata', onLoadedMetadata);
-    return () => video.removeEventListener('loadedmetadata', onLoadedMetadata);
+    const attemptSeek = () => {
+      if (initialCurrentTime > 1 && video.duration && initialCurrentTime < video.duration - 1) {
+        try {
+          video.currentTime = initialCurrentTime;
+        } catch {
+          // Seeking isn't possible yet (or this host doesn't support it well) —
+          // just play from the start instead of getting stuck.
+        }
+      }
+    };
+
+    const onCanPlay = () => {
+      attemptSeek();
+      finish();
+    };
+
+    // Safety net: never leave the player stuck waiting to resume.
+    const giveUpTimer = setTimeout(finish, 6000);
+
+    video.addEventListener('canplay', onCanPlay);
+    video.addEventListener('error', finish);
+
+    // Already buffered enough by the time this effect ran (e.g. fast connection)?
+    if (video.readyState >= 3) onCanPlay();
+
+    return () => {
+      clearTimeout(giveUpTimer);
+      video.removeEventListener('canplay', onCanPlay);
+      video.removeEventListener('error', finish);
+    };
   }, [initialCurrentTime]);
 
   const handleTimeUpdate = () => {
