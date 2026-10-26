@@ -172,8 +172,11 @@ export default function LessonManager({ courseId, initialLessons }: { courseId: 
               required
               value={form.videoUrl}
               onChange={(e) => setForm({ ...form, videoUrl: e.target.value })}
-              placeholder="https://…/lesson.mp4"
+              placeholder="https://…/lesson.mp4, or a YouTube / Vimeo / Google Drive link"
             />
+            <p className="mt-1 text-xs text-white/40">
+              Direct .mp4 links, YouTube, Vimeo and Google Drive links all work. For Google Drive, set sharing to &quot;Anyone with the link&quot;.
+            </p>
             <div className="mt-2">
               <FileUpload
                 kind="video"

@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/index';
+import { resolveVideoSource } from '@/lib/video-source';
 
 interface VideoPlayerProps {
   lessonId: string;
@@ -30,7 +31,11 @@ export default function VideoPlayer({
   const [saving, setSaving] = useState(false);
   const [completing, setCompleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [restored, setRestored] = useState(false);
+  const source = useMemo(() => resolveVideoSource(videoUrl), [videoUrl]);
+  // Only direct files with a saved position need the "restoring" step.
+  const needsRestore = source.kind === 'file' && initialCurrentTime > 1;
+  const [restored, setRestored] = useState(!needsRestore);
+  const [playError, setPlayError] = useState<string | null>(null);
 
   const saveProgress = useCallback(
     async (currentTime: number, watchedPercent: number) => {
@@ -56,7 +61,7 @@ export default function VideoPlayer({
   // giving up after a few seconds keeps a bad resume from blocking playback.
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || !needsRestore) return;
 
     let done = false;
     const finish = () => {
@@ -98,7 +103,19 @@ export default function VideoPlayer({
       video.removeEventListener('canplay', onCanPlay);
       video.removeEventListener('error', finish);
     };
-  }, [initialCurrentTime]);
+  }, [initialCurrentTime, needsRestore]);
+
+  const handleVideoError = () => {
+    const code = videoRef.current?.error?.code;
+    setPlayError(
+      code === 4
+        ? "This link isn't a video file the browser can play. It may be a web page, a private file, or an unsupported format."
+        : code === 2
+        ? 'The network dropped while loading the video. Check your connection and try again.'
+        : "This video couldn't be loaded."
+    );
+    setRestored(true);
+  };
 
   const handleTimeUpdate = () => {
     const video = videoRef.current;
@@ -146,21 +163,53 @@ export default function VideoPlayer({
   return (
     <div className="overflow-hidden rounded-xl border border-white/10 bg-black">
       <div className="relative aspect-video bg-black">
-        <video
-          ref={videoRef}
-          src={videoUrl}
-          controls
-          className="h-full w-full"
-          onTimeUpdate={handleTimeUpdate}
-          onPause={handlePause}
-          onEnded={handleEnded}
-        />
-        {!restored && (
+        {source.kind === 'embed' ? (
+          <iframe
+            src={source.src}
+            title="Lesson video"
+            className="absolute inset-0 h-full w-full"
+            allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+            allowFullScreen
+            referrerPolicy="strict-origin-when-cross-origin"
+          />
+        ) : (
+          <video
+            ref={videoRef}
+            src={source.src}
+            controls
+            playsInline
+            preload="metadata"
+            className="h-full w-full"
+            onTimeUpdate={handleTimeUpdate}
+            onPause={handlePause}
+            onEnded={handleEnded}
+            onError={handleVideoError}
+          />
+        )}
+        {!restored && !playError && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 text-xs text-white/60">
             Restoring your position…
           </div>
         )}
+        {playError && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/85 p-6 text-center">
+            <p className="max-w-md text-sm text-white/80">{playError}</p>
+            <a
+              href={videoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-medium text-cf-gold underline"
+            >
+              Open the video link in a new tab
+            </a>
+          </div>
+        )}
       </div>
+      {source.kind === 'embed' && (
+        <p className="border-t border-white/10 bg-cf-charcoal2 px-5 py-2 text-xs text-white/40">
+          This lesson plays from {source.provider}, so your watch position can&apos;t be saved. Press the button below when you finish.
+        </p>
+      )}
       <div className="flex items-center justify-between gap-4 border-t border-white/10 bg-cf-charcoal2 px-5 py-4">
         <div className="text-sm text-white/50">
           {completed ? 'You completed this lesson.' : 'Watch the lesson, then mark it complete.'}
