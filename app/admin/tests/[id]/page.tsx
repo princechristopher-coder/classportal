@@ -6,11 +6,14 @@ import { useParams } from 'next/navigation';
 import { Badge, Button, Card, Spinner } from '@/components/ui/index';
 import TestForm, { TestSettings } from '@/components/tests/TestForm';
 import QuestionManager, { AdminQuestion } from '@/components/tests/QuestionManager';
+import AudiencePanel from '@/components/tests/AudiencePanel';
 
 interface AdminTestDetail extends TestSettings {
   id: string;
+  audience: 'PUBLIC' | 'ASSIGNED';
+  maxParticipants: number | null;
   questions: AdminQuestion[];
-  _count: { attempts: number };
+  _count: { attempts: number; assignments: number };
 }
 
 export default function AdminTestEditPage() {
@@ -103,6 +106,16 @@ export default function AdminTestEditPage() {
       <Card>
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-cf-gold">Settings</h2>
         <TestForm mode="edit" initial={test} onSaved={(t) => setTest({ ...test, ...t })} />
+      </Card>
+
+      <Card>
+        <AudiencePanel
+          testId={test.id}
+          initialAudience={test.audience}
+          initialMax={test.maxParticipants}
+          published={test.published}
+          onSaved={(audience, max) => setTest({ ...test, audience, maxParticipants: max })}
+        />
       </Card>
 
       <Card>

@@ -17,7 +17,7 @@ export async function GET(req: NextRequest, { params }: Params) {
       where: { id: params.id },
       include: {
         questions: { orderBy: { order: 'asc' } },
-        _count: { select: { attempts: true } }
+        _count: { select: { attempts: true, assignments: true } }
       }
     });
     if (!test) return jsonError('Test not found.', 404);
@@ -62,6 +62,9 @@ export async function PATCH(req: NextRequest, { params }: Params) {
         passMark: data.passMark,
         showReview: data.showReview,
         published: data.published,
+        audience: data.audience,
+        // The student limit only applies to public tests.
+        maxParticipants: data.audience === 'ASSIGNED' ? null : data.maxParticipants,
         opensAt: toDateOrNull(data.opensAt),
         closesAt: toDateOrNull(data.closesAt)
       }

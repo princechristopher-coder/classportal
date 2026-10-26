@@ -11,6 +11,14 @@ export const testBaseSchema = z.object({
   passMark: z.number().int().min(0).max(100, 'Pass mark is a percentage from 0 to 100.'),
   showReview: z.boolean(),
   published: z.boolean().optional(),
+  audience: z.enum(['PUBLIC', 'ASSIGNED']).optional(),
+  maxParticipants: z
+    .number()
+    .int()
+    .min(1, 'The student limit must be at least 1.')
+    .max(100000)
+    .nullable()
+    .optional(),
   opensAt: isoOrNull,
   closesAt: isoOrNull
 });

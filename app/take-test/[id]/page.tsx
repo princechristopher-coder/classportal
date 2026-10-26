@@ -17,6 +17,7 @@ interface TestInfo {
   closesAt: string | null;
   questionCount: number;
   status: 'upcoming' | 'open' | 'closed';
+  isFull: boolean;
   inProgressAttemptId: string | null;
   attempts: { id: string }[];
   attemptsLeft: number;
@@ -241,6 +242,8 @@ export default function TakeTestPage() {
                       ? `This test opens ${info.opensAt ? new Date(info.opensAt).toLocaleString() : 'soon'}.`
                       : info.status === 'closed'
                       ? 'This test is closed.'
+                      : info.isFull
+                      ? 'This test is full. All places have been taken.'
                       : 'You have used all your attempts for this test.'}
                   </p>
                 )}

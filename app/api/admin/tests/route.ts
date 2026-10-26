@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
     await requireAdmin(req);
     const tests = await prisma.test.findMany({
       orderBy: { createdAt: 'desc' },
-      include: { _count: { select: { questions: true, attempts: true } } }
+      include: { _count: { select: { questions: true, attempts: true, assignments: true } } }
     });
     return NextResponse.json({ tests });
   } catch (err) {
@@ -33,6 +33,8 @@ export async function POST(req: NextRequest) {
         passMark: data.passMark,
         showReview: data.showReview,
         published: false,
+        audience: data.audience ?? 'PUBLIC',
+        maxParticipants: data.audience === 'ASSIGNED' ? null : data.maxParticipants ?? null,
         opensAt: toDateOrNull(data.opensAt) ?? null,
         closesAt: toDateOrNull(data.closesAt) ?? null
       }

@@ -15,6 +15,9 @@ interface StudentTest {
   closesAt: string | null;
   questionCount: number;
   status: 'upcoming' | 'open' | 'closed';
+  audience: 'PUBLIC' | 'ASSIGNED';
+  spotsLeft: number | null;
+  isFull: boolean;
   inProgressAttemptId: string | null;
   attempts: { id: string; score: number; total: number; submittedAt: string; timedOut: boolean }[];
   attemptsLeft: number;
@@ -74,6 +77,13 @@ export default function StudentTestsPage() {
                       <Badge tone="gray">{t.questionCount} questions</Badge>
                       <Badge tone="gray">{t.durationMins} min</Badge>
                       <Badge tone="gray">Pass {t.passMark}%</Badge>
+                      {t.audience === 'ASSIGNED' && <Badge tone="gold">Assigned to you</Badge>}
+                      {t.isFull && <Badge tone="red">Full</Badge>}
+                      {!t.isFull && t.spotsLeft !== null && !t.inProgressAttemptId && t.attempts.length === 0 && (
+                        <Badge tone="gray">
+                          {t.spotsLeft} place{t.spotsLeft === 1 ? '' : 's'} left
+                        </Badge>
+                      )}
                       {t.inProgressAttemptId && <Badge tone="gold">In progress</Badge>}
                       {t.status === 'upcoming' && t.opensAt && <Badge tone="gold">Opens {fmt(t.opensAt)}</Badge>}
                       {t.status === 'closed' && <Badge tone="red">Closed</Badge>}
@@ -93,6 +103,8 @@ export default function StudentTestsPage() {
                           ? 'Not open yet'
                           : t.status === 'closed'
                           ? 'Closed'
+                          : t.isFull
+                          ? 'Test is full'
                           : 'No attempts left'}
                       </span>
                     )}

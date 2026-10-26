@@ -18,6 +18,11 @@ enum CourseLevel {
   ADVANCED
 }
 
+enum TestAudience {
+  PUBLIC
+  ASSIGNED
+}
+
 enum PaymentStatus {
   PENDING
   SUCCESS
@@ -40,6 +45,7 @@ model User {
   payments    Payment[]
   resetTokens PasswordResetToken[]
   testAttempts TestAttempt[]
+  testAssignments TestAssignment[]
 }
 
 model Course {
@@ -164,6 +170,8 @@ model Test {
   passMark     Int       @default(50)
   showReview   Boolean   @default(true)
   published    Boolean   @default(false)
+  audience     TestAudience @default(PUBLIC)
+  maxParticipants Int?
   opensAt      DateTime?
   closesAt     DateTime?
   createdAt    DateTime  @default(now())
@@ -171,6 +179,20 @@ model Test {
 
   questions    TestQuestion[]
   attempts     TestAttempt[]
+  assignments  TestAssignment[]
+}
+
+model TestAssignment {
+  id        String   @id @default(cuid())
+  testId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  test      Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([testId, userId])
+  @@index([userId])
 }
 
 model TestQuestion {

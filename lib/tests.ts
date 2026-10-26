@@ -102,6 +102,12 @@ export interface StudentTestSummary {
   closesAt: Date | null;
   questionCount: number;
   status: 'upcoming' | 'open' | 'closed';
+  audience: 'PUBLIC' | 'ASSIGNED';
+  maxParticipants: number | null;
+  /** Places left on a capped public test; null when there is no cap. */
+  spotsLeft: number | null;
+  /** True when a capped public test is full and this student never started it. */
+  isFull: boolean;
   inProgressAttemptId: string | null;
   attempts: { id: string; score: number; total: number; submittedAt: Date; timedOut: boolean }[];
   attemptsLeft: number;
@@ -111,7 +117,12 @@ export interface StudentTestSummary {
 /** Published tests (with at least one question) plus this student's attempt history. */
 export async function studentTestSummaries(userId: string, onlyIds?: string[]): Promise<StudentTestSummary[]> {
   const tests = await prisma.test.findMany({
-    where: { published: true, ...(onlyIds ? { id: { in: onlyIds } } : {}) },
+    where: {
+      published: true,
+      // Public tests are visible to everyone; assigned tests only to the students chosen.
+      OR: [{ audience: 'PUBLIC' }, { assignments: { some: { userId } } }],
+      ...(onlyIds ? { id: { in: onlyIds } } : {})
+    },
     include: { _count: { select: { questions: true } } },
     orderBy: { createdAt: 'desc' }
   });
@@ -122,6 +133,17 @@ export async function studentTestSummaries(userId: string, onlyIds?: string[]): 
     where: { userId, testId: { in: visible.map((t) => t.id) } },
     orderBy: { startedAt: 'desc' }
   });
+
+  // How many different students have already started each capped public test.
+  const cappedIds = visible.filter((t) => t.audience === 'PUBLIC' && t.maxParticipants !== null).map((t) => t.id);
+  const participants = new Map<string, number>();
+  if (cappedIds.length > 0) {
+    const groups = await prisma.testAttempt.groupBy({
+      by: ['testId', 'userId'],
+      where: { testId: { in: cappedIds } }
+    });
+    for (const g of groups) participants.set(g.testId, (participants.get(g.testId) ?? 0) + 1);
+  }
 
   const durationById = new Map(visible.map((t) => [t.id, t.durationMins]));
   const byTest = new Map<string, TestAttempt[]>();
@@ -136,6 +158,10 @@ export async function studentTestSummaries(userId: string, onlyIds?: string[]): 
     const inProgress = mine.find((a) => !a.submittedAt) ?? null;
     const status = testWindowStatus(t);
     const attemptsLeft = Math.max(0, t.maxAttempts - submitted.length);
+    const capped = t.audience === 'PUBLIC' && t.maxParticipants !== null;
+    const taken = participants.get(t.id) ?? 0;
+    const spotsLeft = capped ? Math.max(0, (t.maxParticipants as number) - taken) : null;
+    const isFull = capped && spotsLeft === 0 && mine.length === 0;
     return {
       id: t.id,
       title: t.title,
@@ -148,6 +174,10 @@ export async function studentTestSummaries(userId: string, onlyIds?: string[]): 
       closesAt: t.closesAt,
       questionCount: t._count.questions,
       status,
+      audience: t.audience,
+      maxParticipants: t.audience === 'PUBLIC' ? t.maxParticipants : null,
+      spotsLeft,
+      isFull,
       inProgressAttemptId: inProgress?.id ?? null,
       attempts: submitted.map((a) => ({
         id: a.id,
@@ -157,7 +187,7 @@ export async function studentTestSummaries(userId: string, onlyIds?: string[]): 
         timedOut: a.timedOut
       })),
       attemptsLeft,
-      canStart: !!inProgress || (status === 'open' && attemptsLeft > 0)
+      canStart: !!inProgress || (status === 'open' && attemptsLeft > 0 && !isFull)
     };
   });
 }

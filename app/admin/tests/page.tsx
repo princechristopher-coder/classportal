@@ -10,9 +10,11 @@ interface AdminTest {
   durationMins: number;
   passMark: number;
   published: boolean;
+  audience: 'PUBLIC' | 'ASSIGNED';
+  maxParticipants: number | null;
   opensAt: string | null;
   closesAt: string | null;
-  _count: { questions: number; attempts: number };
+  _count: { questions: number; attempts: number; assignments: number };
 }
 
 function windowLabel(t: AdminTest): string {
@@ -102,6 +104,7 @@ export default function AdminTestsPage() {
             <thead className="border-b border-white/10 text-xs uppercase tracking-wider text-white/40">
               <tr>
                 <th className="px-5 py-3">Title</th>
+                <th className="px-5 py-3">Audience</th>
                 <th className="px-5 py-3">Questions</th>
                 <th className="px-5 py-3">Time</th>
                 <th className="px-5 py-3">Window</th>
@@ -117,6 +120,13 @@ export default function AdminTestsPage() {
                     <Link href={`/admin/tests/${t.id}`} className="font-medium hover:text-cf-gold">
                       {t.title}
                     </Link>
+                  </td>
+                  <td className="px-5 py-3 text-xs text-white/60">
+                    {t.audience === 'ASSIGNED'
+                      ? `Assigned · ${t._count.assignments} student${t._count.assignments === 1 ? '' : 's'}`
+                      : t.maxParticipants
+                      ? `Public · first ${t.maxParticipants}`
+                      : 'Public · everyone'}
                   </td>
                   <td className="px-5 py-3 text-white/60">{t._count.questions}</td>
                   <td className="px-5 py-3 text-white/60">{t.durationMins} min</td>
