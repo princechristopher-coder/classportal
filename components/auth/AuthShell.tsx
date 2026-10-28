@@ -16,7 +16,7 @@ export default function AuthShell({
     <div className="flex min-h-screen items-center justify-center bg-cf-radial px-6 py-16">
       <div className="w-full max-w-md">
         <Link href="/" className="mb-8 flex items-center justify-center gap-2 font-display text-xl font-bold">
-          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-cf-red to-cf-redDark text-sm text-white">
+          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-[#6ceaee] to-[#8f7bff] text-sm font-bold text-[#061029]">
             {SITE_MONOGRAM}
           </span>
           {SITE_NAME_PRIMARY} <span className="text-gradient-gold">{SITE_NAME_ACCENT}</span>

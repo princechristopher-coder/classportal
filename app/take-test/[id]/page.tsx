@@ -196,7 +196,7 @@ export default function TakeTestPage() {
 
   if (!info && !error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-cf-black">
+      <div className="flex min-h-screen items-center justify-center">
         <Spinner />
       </div>
     );
@@ -204,7 +204,7 @@ export default function TakeTestPage() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-cf-black px-4 py-12">
+      <div className="min-h-screen px-4 py-12">
         <div className="mx-auto max-w-xl space-y-6">
           <Link href="/dashboard/tests" className="text-xs text-white/40 hover:text-cf-gold">
             ← Back to tests
@@ -263,7 +263,7 @@ export default function TakeTestPage() {
   const low = secondsLeft <= 300;
 
   return (
-    <div className="min-h-screen bg-cf-black px-4 py-6">
+    <div className="min-h-screen px-4 py-6">
       <div className="mx-auto max-w-2xl space-y-4">
         <div className="glass sticky top-2 z-10 flex items-center justify-between rounded-xl px-4 py-3">
           <div className="min-w-0">

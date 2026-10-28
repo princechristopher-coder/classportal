@@ -56,55 +56,59 @@ export default function MobileNavMenu({
   }, [open]);
 
   return (
-    <div ref={ref} className="relative mb-6 md:hidden">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
-        aria-haspopup="menu"
-        className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-cf-charcoal2 px-4 py-3 text-sm font-medium"
-      >
-        <span className="flex items-center gap-3">
-          <span className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-cf-red to-cf-redDark text-[10px] text-white">
-            {SITE_MONOGRAM}
-          </span>
-          <span className="text-cf-gold">{current?.label ?? heading ?? 'Menu'}</span>
-        </span>
-        <span className={`text-[10px] text-white/60 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden>
-          ▼
-        </span>
-      </button>
-
-      {open && (
-        <nav
-          role="menu"
-          className="absolute left-0 right-0 top-full z-30 mt-2 max-h-[70vh] overflow-y-auto rounded-xl border border-white/10 bg-cf-charcoal p-2 shadow-2xl"
+    <div ref={ref} className="sticky top-3 z-40 mx-auto mb-6 w-full max-w-[420px] md:hidden">
+      <div className="island" data-open={open}>
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+          aria-haspopup="menu"
+          className="flex w-full items-center justify-between px-3 py-2 text-sm font-semibold"
         >
-          {heading && <p className="px-3 pb-1 pt-2 text-[10px] uppercase tracking-widest text-cf-gold/70">{heading}</p>}
-          {items.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              role="menuitem"
-              className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition ${
-                isActive(item.href) ? 'bg-cf-gold/10 text-cf-gold' : 'text-white/70 active:bg-white/5'
-              }`}
-            >
-              <span className="w-4 text-center text-xs">{item.icon}</span>
-              {item.label}
-            </Link>
-          ))}
-          <div className="my-1 h-px bg-white/10" />
-          <Link
-            href="/"
-            role="menuitem"
-            className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-white/50 active:bg-white/5"
+          <span className="flex items-center gap-3">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#6ceaee] to-[#8f7bff] text-[10px] font-bold text-[#061029]">
+              {SITE_MONOGRAM}
+            </span>
+            <span className="text-cf-gold">{current?.label ?? heading ?? 'Menu'}</span>
+          </span>
+          <span
+            className={`flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/10 text-[9px] text-white/80 transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
+            aria-hidden
           >
-            <span className="w-4 text-center text-xs">⌂</span>
-            {SITE_NAME} home
-          </Link>
-        </nav>
-      )}
+            ▼
+          </span>
+        </button>
+
+        <div className="island-body">
+          <div>
+            <nav role="menu" className="max-h-[65vh] overflow-y-auto px-2 pb-2">
+              {heading && <p className="px-3 pb-1 pt-1 text-[11px] font-semibold text-cf-gold/70">{heading}</p>}
+              {items.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  role="menuitem"
+                  className={`flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold transition ${
+                    isActive(item.href) ? 'bg-cf-gold/15 text-cf-gold' : 'text-white/75 active:bg-white/10'
+                  }`}
+                >
+                  <span className="w-4 text-center text-xs">{item.icon}</span>
+                  {item.label}
+                </Link>
+              ))}
+              <div className="my-1 h-px bg-white/10" />
+              <Link
+                href="/"
+                role="menuitem"
+                className="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold text-white/55 active:bg-white/10"
+              >
+                <span className="w-4 text-center text-xs">⌂</span>
+                {SITE_NAME} home
+              </Link>
+            </nav>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

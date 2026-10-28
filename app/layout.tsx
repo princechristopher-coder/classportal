@@ -1,16 +1,16 @@
 import type { Metadata } from 'next';
-import { Playfair_Display, Inter, Dancing_Script } from 'next/font/google';
+import { Unbounded, Manrope, Dancing_Script } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import { SITE_NAME, SITE_DESCRIPTION } from '@/lib/site-config';
 
-const playfair = Playfair_Display({
+const playfair = Unbounded({
   subsets: ['latin'],
-  weight: ['500', '600', '700', '800', '900'],
+  weight: ['500', '600', '700'],
   variable: '--font-display'
 });
 
-const inter = Inter({
+const inter = Manrope({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
   variable: '--font-sans'

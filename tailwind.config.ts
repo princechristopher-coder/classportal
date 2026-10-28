@@ -9,28 +9,29 @@ const config: Config = {
     extend: {
       colors: {
         cf: {
-          black: '#0a0a0b',
-          charcoal: '#141416',
-          charcoal2: '#1c1c1f',
-          red: '#c81e3a',
-          redDark: '#8f1229',
-          gold: '#d4af37',
-          goldLight: '#f1d67a',
-          white: '#f8f7f4'
+          black: '#070c1f',
+          charcoal: 'rgba(255,255,255,0.035)',
+          charcoal2: 'rgba(255,255,255,0.07)',
+          red: '#ff8f7a',
+          redDark: '#e2607a',
+          gold: '#5ce1e6',
+          goldLight: '#8f7bff',
+          violet: '#8f7bff',
+          white: '#eaf1ff'
         }
       },
       fontFamily: {
-        display: ['var(--font-display)', 'serif'],
+        display: ['var(--font-display)', 'sans-serif'],
         sans: ['var(--font-sans)', 'sans-serif'],
         script: ['var(--font-script)', 'cursive']
       },
       backgroundImage: {
-        'cf-radial': 'radial-gradient(circle at 50% 0%, rgba(200,30,58,0.15), transparent 60%)',
-        'cf-gold-line': 'linear-gradient(90deg, transparent, #d4af37, transparent)'
+        'cf-radial': 'radial-gradient(circle at 50% 0%, rgba(92,225,230,0.16), transparent 60%)',
+        'cf-gold-line': 'linear-gradient(90deg, transparent, #5ce1e6, transparent)'
       },
       boxShadow: {
-        glow: '0 0 40px rgba(200,30,58,0.35)',
-        goldGlow: '0 0 30px rgba(212,175,55,0.35)'
+        glow: '0 0 40px rgba(255,143,122,0.35)',
+        goldGlow: '0 12px 32px -8px rgba(92,225,230,0.6)'
       },
       keyframes: {
         float: {

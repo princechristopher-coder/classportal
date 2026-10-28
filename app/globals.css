@@ -8,11 +8,32 @@ html {
 
 body {
   @apply bg-cf-black text-cf-white antialiased;
-  font-family: var(--font-sans), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-sans), 'Manrope', system-ui, sans-serif;
+  background:
+    radial-gradient(700px 520px at 0% 0%, rgba(46, 214, 222, 0.28), transparent 70%),
+    radial-gradient(700px 520px at 100% 6%, rgba(130, 100, 255, 0.30), transparent 70%),
+    radial-gradient(640px 420px at 50% 100%, rgba(255, 120, 110, 0.14), transparent 70%),
+    #070c1f;
+  background-attachment: fixed;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 20%, #000 10%, transparent 75%);
+  mask-image: radial-gradient(ellipse at 50% 20%, #000 10%, transparent 75%);
 }
 
 h1, h2, h3, .font-display {
-  font-family: var(--font-display), 'Playfair Display', Georgia, serif;
+  font-family: var(--font-display), 'Unbounded', system-ui, sans-serif;
+  letter-spacing: -0.02em;
 }
 
 .font-script {
@@ -20,23 +41,24 @@ h1, h2, h3, .font-display {
 }
 
 ::selection {
-  background: #c81e3a;
+  background: #8f7bff;
   color: #fff;
 }
 
 .glass {
-  background: rgba(20, 20, 22, 0.6);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(212, 175, 55, 0.15);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.13) 0%, rgba(255, 255, 255, 0.045) 60%, rgba(255, 255, 255, 0.07) 100%);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 28px 60px -28px rgba(0, 0, 0, 0.65);
 }
 
 .gold-border {
-  border: 1px solid rgba(212, 175, 55, 0.35);
+  border: 1px solid rgba(92, 225, 230, 0.35);
 }
 
 .text-gradient-gold {
-  background: linear-gradient(90deg, #d4af37, #f1d67a, #d4af37);
+  background: linear-gradient(90deg, #5ce1e6, #8f7bff, #5ce1e6);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -46,8 +68,41 @@ h1, h2, h3, .font-display {
   width: 6px;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgba(212, 175, 55, 0.4);
+  background: rgba(92, 225, 230, 0.4);
   border-radius: 999px;
+}
+
+/* ---------- Dynamic island navigation (phones) ---------- */
+.island {
+  background: rgba(8, 12, 32, 0.78);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 18px 40px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(92, 225, 230, 0.08);
+  border-radius: 999px;
+  transition: border-radius 0.35s cubic-bezier(0.32, 0.72, 0, 1), box-shadow 0.35s;
+  overflow: hidden;
+}
+.island[data-open='true'] {
+  border-radius: 30px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 30px 60px -16px rgba(0, 0, 0, 0.8), 0 0 40px -10px rgba(92, 225, 230, 0.35);
+}
+.island-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.38s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.25s ease;
+}
+.island[data-open='true'] .island-body {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.island-body > div {
+  overflow: hidden;
+  min-height: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .island, .island-body { transition: none; }
 }
 
 /* ---------- Certificate print styles ---------- */

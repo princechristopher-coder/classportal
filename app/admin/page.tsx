@@ -78,10 +78,10 @@ export default function AdminAnalyticsPage() {
                 <XAxis dataKey="label" stroke="rgba(255,255,255,0.4)" fontSize={11} />
                 <YAxis stroke="rgba(255,255,255,0.4)" fontSize={11} />
                 <Tooltip
-                  contentStyle={{ background: '#1c1c1f', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 8 }}
-                  labelStyle={{ color: '#f8f7f4' }}
+                  contentStyle={{ background: '#0d1330', border: '1px solid rgba(92,225,230,0.35)', borderRadius: 14 }}
+                  labelStyle={{ color: '#eaf1ff' }}
                 />
-                <Bar dataKey="revenue" fill="#d4af37" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="revenue" fill="#5ce1e6" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -96,10 +96,10 @@ export default function AdminAnalyticsPage() {
                 <XAxis type="number" stroke="rgba(255,255,255,0.4)" fontSize={11} />
                 <YAxis type="category" dataKey="title" width={120} stroke="rgba(255,255,255,0.4)" fontSize={10} />
                 <Tooltip
-                  contentStyle={{ background: '#1c1c1f', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 8 }}
-                  labelStyle={{ color: '#f8f7f4' }}
+                  contentStyle={{ background: '#0d1330', border: '1px solid rgba(92,225,230,0.35)', borderRadius: 14 }}
+                  labelStyle={{ color: '#eaf1ff' }}
                 />
-                <Bar dataKey="enrollments" fill="#c81e3a" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="enrollments" fill="#8f7bff" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
