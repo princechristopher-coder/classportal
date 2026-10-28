@@ -161,7 +161,7 @@ export default function VideoPlayer({
   };
 
   return (
-    <div className="overflow-hidden rounded-xl border border-white/10 bg-black">
+    <div className="overflow-hidden rounded-[28px] border border-white/20 bg-black shadow-[0_30px_60px_-24px_rgba(0,0,0,0.7)]">
       <div className="relative aspect-video bg-black">
         {source.kind === 'embed' ? (
           <iframe

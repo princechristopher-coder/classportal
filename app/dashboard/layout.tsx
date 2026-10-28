@@ -17,16 +17,29 @@ const navItems = [
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, loading, loadError, retry } = useAuth() as ReturnType<typeof useAuth> & {
+    loadError?: string | null;
+    retry?: () => Promise<void>;
+  };
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && !user && !loadError) {
       // Full page load so the browser sends fresh cookies (the server clears a rejected one).
       window.location.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
     }
-  }, [loading, user, pathname]);
+  }, [loading, user, loadError, pathname]);
 
+  if (!loading && !user && loadError) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
+        <p className="max-w-sm text-sm text-white/70">{loadError}</p>
+        <Button variant="gold" onClick={() => retry?.()}>
+          Try again
+        </Button>
+      </div>
+    );
+  }
 
   if (loading || !user) {
     return (

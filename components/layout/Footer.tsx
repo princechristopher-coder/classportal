@@ -38,7 +38,7 @@ export default function Footer() {
         </div>
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-xs text-white/40 md:flex-row">
           <span>© {new Date().getFullYear()} {SITE_NAME}. All rights reserved.</span>
-          <span>Built on a black · red · gold identity.</span>
+          <span>Built on a glass · aqua · violet identity.</span>
         </div>
       </div>
     </footer>

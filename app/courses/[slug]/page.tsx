@@ -189,7 +189,7 @@ export default function CourseDetailPage() {
             />
           )}
           {activeLesson && !canWatchActive && (
-            <div className="flex aspect-video items-center justify-center rounded-xl border border-white/10 bg-cf-charcoal2 text-center">
+            <div className="glass flex aspect-video items-center justify-center rounded-[28px] text-center">
               <div>
                 <p className="text-white/60">🔒 Enroll in this course to watch this lesson.</p>
                 <Button variant="outline" className="mt-4 !px-6 !py-2" onClick={handleEnroll}>
@@ -200,7 +200,7 @@ export default function CourseDetailPage() {
           )}
 
           {activeLesson && (
-            <div className="rounded-xl border border-white/10 bg-cf-charcoal2 p-6">
+            <div className="glass rounded-[24px] p-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="font-display text-xl font-semibold">{activeLesson.title}</h2>
                 {activeLesson.quizUrl && canWatchActive && (
@@ -213,8 +213,8 @@ export default function CourseDetailPage() {
               </div>
               {activeLesson.description && <p className="mt-2 text-sm text-white/60">{activeLesson.description}</p>}
               {activeLesson.notes && (
-                <div className="mt-4 rounded-lg border border-white/10 bg-cf-black/40 p-4">
-                  <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-cf-gold">Notes</h3>
+                <div className="mt-4 rounded-2xl border border-white/10 bg-cf-black/40 p-4">
+                  <h3 className="mb-2 text-sm font-semibold text-cf-gold">Notes</h3>
                   <p className="whitespace-pre-wrap text-sm text-white/60">{activeLesson.notes}</p>
                 </div>
               )}

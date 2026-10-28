@@ -52,7 +52,7 @@ function ForgeCore() {
 
 export default function HeroScene() {
   return (
-    <div className="pointer-events-none absolute inset-0">
+    <div className="pointer-events-none absolute inset-0 lg:left-1/2">
       <Canvas
         camera={{ position: [0, 0, 5.5], fov: 45 }}
         gl={{ alpha: true, antialias: true }}

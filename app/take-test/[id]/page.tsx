@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import clsx from 'clsx';
 import { Badge, Button, Card, Spinner } from '@/components/ui/index';
+import { Ring } from '@/components/ui/Ring';
 
 interface TestInfo {
   id: string;
@@ -262,104 +263,134 @@ export default function TakeTestPage() {
   const isLast = current === session.questions.length - 1;
   const low = secondsLeft <= 300;
 
+  const totalSeconds = Math.max((info?.durationMins ?? 0) * 60, secondsLeft, 1);
+  const timePct = (secondsLeft / totalSeconds) * 100;
+
+  const timerRing = (size: number, stroke: number, big: boolean) => (
+    <Ring value={timePct} size={size} stroke={stroke} tone={low ? 'coral' : 'aqua'}>
+      <div className={clsx('font-display font-bold tabular-nums', big ? 'text-4xl' : 'text-xl', low && 'text-cf-red')}>
+        {formatClock(secondsLeft)}
+      </div>
+      <div className="mt-1 text-xs text-white/50">minutes left</div>
+    </Ring>
+  );
+
+  const questionGrid = (
+    <div className="grid grid-cols-5 gap-2.5">
+      {session.questions.map((x, i) => (
+        <button
+          key={x.id}
+          onClick={() => setCurrent(i)}
+          className={clsx(
+            'grid h-11 place-items-center rounded-[13px] border text-sm font-bold transition',
+            i === current
+              ? 'border-transparent bg-gradient-to-br from-[#6ceaee] to-[#8f7bff] text-[#061029] shadow-goldGlow'
+              : answers[x.id] !== undefined
+              ? 'border-cf-gold/50 bg-cf-gold/15 text-cf-gold'
+              : 'border-white/15 bg-white/5 text-white/55 hover:border-white/35'
+          )}
+        >
+          {i + 1}
+        </button>
+      ))}
+    </div>
+  );
+
   return (
     <div className="min-h-screen px-4 py-6">
-      <div className="mx-auto max-w-2xl space-y-4">
-        <div className="glass sticky top-2 z-10 flex items-center justify-between rounded-xl px-4 py-3">
+      <div className="mx-auto max-w-6xl space-y-5">
+        <div className="glass flex items-center justify-between gap-3 rounded-[22px] px-5 py-3.5">
           <div className="min-w-0">
-            <p className="truncate text-xs font-semibold text-white/60">{session.title}</p>
-            <p className="text-xs text-white/40">
+            <p className="truncate text-sm font-bold">{session.title}</p>
+            <p className="text-xs text-white/50">
               Question {current + 1} of {session.questions.length} · {answeredCount} answered
             </p>
           </div>
-          <span className={clsx('font-display text-2xl font-semibold tabular-nums', low ? 'text-cf-red' : 'text-cf-gold')}>
-            {formatClock(secondsLeft)}
+          <span className="shrink-0 text-xs text-white/50">
+            {saveState === 'saving' && 'Saving…'}
+            {saveState === 'saved' && 'Answers saved'}
+            {saveState === 'offline' && 'Connection problem'}
           </span>
         </div>
 
         {low && secondsLeft > 0 && (
-          <p className="rounded-lg border border-cf-red/40 bg-cf-red/10 px-4 py-2 text-xs text-cf-red">
+          <p className="rounded-2xl border border-cf-red/40 bg-cf-red/10 px-4 py-2 text-xs text-cf-red">
             Less than 5 minutes left. Your test submits automatically at 00:00.
           </p>
         )}
-        {error && <p className="rounded-lg border border-cf-red/40 bg-cf-red/10 px-4 py-2 text-xs text-cf-red">{error}</p>}
+        {error && <p className="rounded-2xl border border-cf-red/40 bg-cf-red/10 px-4 py-2 text-xs text-cf-red">{error}</p>}
 
-        <div className="flex flex-wrap gap-1.5">
-          {session.questions.map((x, i) => (
-            <button
-              key={x.id}
-              onClick={() => setCurrent(i)}
-              className={clsx(
-                'h-8 w-8 rounded-md border text-xs font-semibold transition',
-                i === current
-                  ? 'border-cf-gold text-cf-gold'
-                  : answers[x.id] !== undefined
-                  ? 'border-cf-gold/30 bg-cf-gold/15 text-cf-gold'
-                  : 'border-white/10 text-white/50 hover:border-white/30'
-              )}
-            >
-              {i + 1}
-            </button>
-          ))}
-        </div>
+        <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
+          {/* Timer first on phones, in the side column on desktop */}
+          <div className="lg:order-2 lg:space-y-5">
+            <div className="glass flex justify-center rounded-[26px] p-5 lg:p-7">
+              <div className="hidden lg:block">{timerRing(200, 11, true)}</div>
+              <div className="lg:hidden">{timerRing(150, 9, false)}</div>
+            </div>
+            <div className="glass mt-5 rounded-[26px] p-5 lg:mt-0">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="font-display text-sm font-semibold">Questions</h3>
+                <span className="text-xs text-white/50">{answeredCount} answered</span>
+              </div>
+              {questionGrid}
+            </div>
+          </div>
 
-        <Card>
-          {q.topic && <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-white/40">{q.topic}</p>}
-          <p className="font-display text-lg font-semibold leading-relaxed">{q.text}</p>
+          <Card className="!rounded-[28px] !p-6 sm:!p-9 lg:order-1">
+            {q.topic && <p className="mb-2 text-xs font-semibold text-white/50">{q.topic}</p>}
+            <p className="font-display text-lg font-medium leading-relaxed sm:text-2xl sm:leading-snug">{q.text}</p>
 
-          <div className="mt-5 space-y-2.5">
-            {q.options.map((opt, i) => {
-              const selected = answers[q.id] === i;
-              return (
-                <button
-                  key={i}
-                  onClick={() => choose(q.id, i)}
-                  className={clsx(
-                    'flex w-full items-start gap-3 rounded-lg border px-4 py-3 text-left text-sm transition',
-                    selected ? 'border-cf-gold bg-cf-gold/10' : 'border-white/10 bg-cf-charcoal2 hover:border-white/30'
-                  )}
-                >
-                  <span
+            <div className="mt-6 space-y-3">
+              {q.options.map((opt, i) => {
+                const selected = answers[q.id] === i;
+                return (
+                  <button
+                    key={i}
+                    onClick={() => choose(q.id, i)}
                     className={clsx(
-                      'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-bold',
-                      selected ? 'border-cf-gold bg-cf-gold text-cf-black' : 'border-white/20 text-white/50'
+                      'flex w-full items-center gap-4 rounded-[18px] border px-5 py-4 text-left text-base font-semibold transition',
+                      selected
+                        ? 'border-cf-gold/50 bg-gradient-to-br from-cf-gold/20 to-cf-violet/20 shadow-[0_14px_40px_-16px_rgba(92,225,230,0.8)]'
+                        : 'border-white/15 bg-white/5 hover:border-white/35'
                     )}
                   >
-                    {LETTERS[i]}
-                  </span>
-                  <span className="leading-relaxed">{opt}</span>
+                    <span
+                      className={clsx(
+                        'grid h-9 w-9 shrink-0 place-items-center rounded-[11px] border font-display text-xs font-bold',
+                        selected ? 'border-transparent bg-cf-gold text-[#061029]' : 'border-white/15 bg-white/10 text-white/60'
+                      )}
+                    >
+                      {LETTERS[i]}
+                    </span>
+                    <span className="leading-relaxed">{opt}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-7 flex items-center gap-3">
+              <Button variant="ghost" className="flex-1 border border-white/15 bg-white/5" disabled={current === 0} onClick={() => setCurrent((c) => c - 1)}>
+                Back
+              </Button>
+              {isLast ? (
+                <Button variant="gold" className="flex-1" loading={submitting} onClick={confirmSubmit}>
+                  Submit test
+                </Button>
+              ) : (
+                <Button variant="gold" className="flex-1" onClick={() => setCurrent((c) => c + 1)}>
+                  Next
+                </Button>
+              )}
+            </div>
+
+            {!isLast && (
+              <div className="mt-4 text-right text-xs">
+                <button onClick={confirmSubmit} className="text-white/45 underline hover:text-cf-gold">
+                  Submit early
                 </button>
-              );
-            })}
-          </div>
-
-          <div className="mt-6 flex items-center gap-3">
-            <Button variant="ghost" className="flex-1" disabled={current === 0} onClick={() => setCurrent((c) => c - 1)}>
-              Back
-            </Button>
-            {isLast ? (
-              <Button variant="gold" className="flex-1" loading={submitting} onClick={confirmSubmit}>
-                Submit test
-              </Button>
-            ) : (
-              <Button variant="primary" className="flex-1" onClick={() => setCurrent((c) => c + 1)}>
-                Next
-              </Button>
+              </div>
             )}
-          </div>
-        </Card>
-
-        <div className="flex items-center justify-between text-xs text-white/40">
-          <span>
-            {saveState === 'saving' && 'Saving…'}
-            {saveState === 'saved' && 'Answers saved'}
-            {saveState === 'offline' && 'Connection problem — will keep retrying'}
-          </span>
-          {!isLast && (
-            <button onClick={confirmSubmit} className="text-white/40 underline hover:text-cf-gold">
-              Submit early
-            </button>
-          )}
+          </Card>
         </div>
       </div>
     </div>

@@ -18,19 +18,34 @@ const navItems = [
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, loading, loadError, retry } = useAuth() as ReturnType<typeof useAuth> & {
+    loadError?: string | null;
+    retry?: () => Promise<void>;
+  };
   const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
     if (loading) return;
     if (!user) {
-      window.location.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+      if (!loadError) {
+        window.location.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+      }
     } else if (user.role !== 'ADMIN') {
       router.replace('/dashboard');
     }
-  }, [loading, user, pathname, router]);
+  }, [loading, user, loadError, pathname, router]);
 
+  if (!loading && !user && loadError) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
+        <p className="max-w-sm text-sm text-white/70">{loadError}</p>
+        <Button variant="gold" onClick={() => retry?.()}>
+          Try again
+        </Button>
+      </div>
+    );
+  }
 
   if (loading || !user || user.role !== 'ADMIN') {
     return (

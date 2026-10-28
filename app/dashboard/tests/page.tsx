@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Badge, Button, Card, Spinner } from '@/components/ui/index';
+import { Ring } from '@/components/ui/Ring';
 
 interface StudentTest {
   id: string;
@@ -57,7 +58,7 @@ export default function StudentTestsPage() {
       </div>
 
       {tests.length === 0 ? (
-        <div className="rounded-xl border border-white/10 bg-cf-charcoal2 p-12 text-center text-white/50">
+        <div className="glass rounded-[24px] p-12 text-center text-white/50">
           No tests available right now.
         </div>
       ) : (
@@ -70,7 +71,16 @@ export default function StudentTestsPage() {
             return (
               <Card key={t.id}>
                 <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div className="min-w-0">
+                  <Ring
+                    value={t.status === 'open' || t.inProgressAttemptId ? 100 : 0}
+                    size={64}
+                    stroke={6}
+                    tone={t.inProgressAttemptId ? 'coral' : 'aqua'}
+                    className="shrink-0"
+                  >
+                    <span className="text-[11px] font-bold">{t.durationMins}m</span>
+                  </Ring>
+                  <div className="min-w-0 flex-1">
                     <h3 className="font-display text-lg font-semibold">{t.title}</h3>
                     {t.description && <p className="mt-1 text-sm text-white/50">{t.description}</p>}
                     <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -93,7 +103,7 @@ export default function StudentTestsPage() {
                   <div className="text-right">
                     {t.canStart ? (
                       <Link href={`/take-test/${t.id}`}>
-                        <Button variant="gold" className="!px-5 !py-2.5">
+                        <Button variant={t.inProgressAttemptId ? 'primary' : 'gold'} className="!px-5 !py-2.5">
                           {action}
                         </Button>
                       </Link>
@@ -116,7 +126,7 @@ export default function StudentTestsPage() {
 
                 {t.attempts.length > 0 && (
                   <div className="mt-4 border-t border-white/10 pt-4">
-                    <p className="mb-2 text-xs uppercase tracking-wider text-white/40">Your results</p>
+                    <p className="mb-2 text-xs font-semibold text-white/50">Your results</p>
                     <ul className="space-y-1.5">
                       {t.attempts.map((a) => {
                         const percent = a.total > 0 ? Math.round((a.score / a.total) * 100) : 0;

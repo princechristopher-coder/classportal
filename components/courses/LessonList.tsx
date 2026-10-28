@@ -38,7 +38,7 @@ export default function LessonList({
   const percent = lessons.length > 0 ? Math.round((completedCount / lessons.length) * 100) : 0;
 
   return (
-    <div className="rounded-xl border border-white/10 bg-cf-charcoal2 p-5">
+    <div className="glass rounded-[28px] p-5">
       <div className="mb-4">
         <div className="mb-2 flex items-center justify-between text-sm">
           <span className="font-medium text-white/80">Course Progress</span>
@@ -61,9 +61,9 @@ export default function LessonList({
               <button
                 disabled={locked}
                 onClick={() => onSelect(lesson.id)}
-                className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition ${
+                className={`flex w-full items-center justify-between gap-3 rounded-[15px] px-3 py-3 text-left text-sm font-semibold transition ${
                   isActive
-                    ? 'bg-cf-red/15 text-white'
+                    ? 'border border-cf-gold/35 bg-gradient-to-br from-cf-gold/20 to-cf-violet/20 text-white'
                     : locked
                       ? 'cursor-not-allowed text-white/30'
                       : 'text-white/70 hover:bg-white/5 hover:text-white'
@@ -74,6 +74,8 @@ export default function LessonList({
                     className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[10px] ${
                       progress?.completed
                         ? 'border-emerald-400 bg-emerald-400/20 text-emerald-400'
+                        : isActive
+                        ? 'border-transparent bg-cf-gold text-[#061029]'
                         : 'border-white/20 text-white/50'
                     }`}
                   >
