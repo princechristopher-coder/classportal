@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Unbounded, Manrope, Dancing_Script } from 'next/font/google';
+import { Unbounded, Manrope, Dancing_Script, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import { SITE_NAME, SITE_DESCRIPTION } from '@/lib/site-config';
@@ -16,6 +16,12 @@ const inter = Manrope({
   variable: '--font-sans'
 });
 
+const playfairCert = Playfair_Display({
+  subsets: ['latin'],
+  weight: ['500', '600', '700', '800'],
+  variable: '--font-cert'
+});
+
 const dancingScript = Dancing_Script({
   subsets: ['latin'],
   weight: ['500', '600', '700'],
@@ -29,7 +35,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable} ${dancingScript.variable}`}>
+    <html lang="en" className={`${playfair.variable} ${inter.variable} ${dancingScript.variable} ${playfairCert.variable}`}>
       <body>
         <AuthProvider>{children}</AuthProvider>
       </body>

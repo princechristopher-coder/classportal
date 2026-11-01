@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
 
 export interface CertificateData {
@@ -18,9 +19,9 @@ const RED = '#8f1229';
 function GoldLineDiamond({ className = '' }: { className?: string }) {
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <span className="h-px w-10 sm:w-16" style={{ background: `linear-gradient(90deg, transparent, ${GOLD})` }} />
+      <span className="h-px w-16" style={{ background: `linear-gradient(90deg, transparent, ${GOLD})` }} />
       <span className="h-1.5 w-1.5 rotate-45" style={{ background: GOLD }} />
-      <span className="h-px w-10 sm:w-16" style={{ background: `linear-gradient(90deg, ${GOLD}, transparent)` }} />
+      <span className="h-px w-16" style={{ background: `linear-gradient(90deg, ${GOLD}, transparent)` }} />
     </div>
   );
 }
@@ -28,16 +29,16 @@ function GoldLineDiamond({ className = '' }: { className?: string }) {
 function CornerFlourish({ position }: { position: 'tl' | 'tr' | 'bl' | 'br' }) {
   const rotation = { tl: 0, tr: 90, bl: 270, br: 180 }[position];
   const pos = {
-    tl: 'top-2 left-2 sm:top-3 sm:left-3',
-    tr: 'top-2 right-2 sm:top-3 sm:right-3',
-    bl: 'bottom-2 left-2 sm:bottom-3 sm:left-3',
-    br: 'bottom-2 right-2 sm:bottom-3 sm:right-3'
+    tl: 'top-3 left-3',
+    tr: 'top-3 right-3',
+    bl: 'bottom-3 left-3',
+    br: 'bottom-3 right-3'
   }[position];
 
   return (
     <svg
       viewBox="0 0 120 120"
-      className={`pointer-events-none absolute ${pos} h-14 w-14 sm:h-24 sm:w-24`}
+      className={`pointer-events-none absolute ${pos} h-24 w-24`}
       style={{ transform: `rotate(${rotation}deg)` }}
     >
       <g fill="none" stroke={GOLD} strokeWidth="1.4">
@@ -59,20 +60,20 @@ function CornerFlourish({ position }: { position: 'tl' | 'tr' | 'bl' | 'br' }) {
 function LogoMark() {
   return (
     <div className="flex items-center gap-2.5">
-      <div className="relative flex h-9 w-9 shrink-0 items-center justify-center sm:h-11 sm:w-11">
+      <div className="relative flex shrink-0 items-center justify-center h-11 w-11">
         <div className="absolute inset-0 rotate-45 rounded-md" style={{ background: INK }} />
         <div
-          className="absolute bottom-0 right-0 h-5 w-5 translate-x-1 translate-y-1 rotate-45 rounded-sm sm:h-6 sm:w-6"
+          className="absolute bottom-0 right-0 translate-x-1 translate-y-1 rotate-45 rounded-sm h-6 w-6"
           style={{ background: RED }}
         />
-        <span className="relative font-display text-xs font-bold text-white sm:text-sm">CF</span>
+        <span className="relative font-display font-bold text-white text-sm">CF</span>
       </div>
       <div className="text-left leading-none">
-        <div className="font-display text-sm font-extrabold tracking-tight sm:text-lg">
+        <div className="font-display font-extrabold tracking-tight text-lg">
           <span style={{ color: INK }}>CODE</span>
           <span style={{ color: RED }}>FORGE</span>
         </div>
-        <div className="mt-0.5 text-[7px] font-bold tracking-[0.35em] sm:text-[9px]" style={{ color: INK }}>
+        <div className="mt-0.5 font-bold tracking-[0.35em] text-[9px]" style={{ color: INK }}>
           ACADEMY
         </div>
       </div>
@@ -130,7 +131,7 @@ function LaurelWreath() {
 function SealMedallion() {
   return (
     <div className="relative flex flex-col items-center">
-      <svg viewBox="0 0 120 120" className="h-20 w-20 sm:h-28 sm:w-28">
+      <svg viewBox="0 0 120 120" className="h-24 w-24">
         <defs>
           <radialGradient id="sealFill" cx="50%" cy="42%" r="62%">
             <stop offset="0%" stopColor="#f6e2a0" />
@@ -175,13 +176,16 @@ function SealMedallion() {
         </text>
       </svg>
 
-      <svg viewBox="0 0 60 46" className="-mt-2 h-9 w-11 sm:h-12 sm:w-16">
+      <svg viewBox="0 0 60 46" className="-mt-2 h-12 w-16">
         <path d="M14 0 L30 8 L46 0 L38 30 L30 20 L22 30 Z" fill={RED} />
         <path d="M14 0 L30 8 L46 0 L44 6 L30 12 L16 6 Z" fill={GOLD} opacity="0.85" />
       </svg>
     </div>
   );
 }
+
+const DESIGN_W = 1100;
+const DESIGN_H = Math.round((DESIGN_W * 210) / 297);
 
 export default function CertificateTemplate({ data, verifyUrl }: { data: CertificateData; verifyUrl: string }) {
   const issuedDate = new Date(data.issuedAt).toLocaleDateString(undefined, {
@@ -190,10 +194,27 @@ export default function CertificateTemplate({ data, verifyUrl }: { data: Certifi
     day: 'numeric'
   });
 
+  const holderRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  // The certificate is laid out at one fixed size and scaled to fit the screen,
+  // so it looks identical on phones, tablets and desktops.
+  useEffect(() => {
+    const el = holderRef.current;
+    if (!el) return;
+    const update = () => setScale(Math.min(1, el.clientWidth / DESIGN_W));
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   return (
+    <div ref={holderRef} className="cert-holder mx-auto w-full" style={{ maxWidth: DESIGN_W, height: DESIGN_H * scale }}>
+    <div className="cert-scaler" style={{ width: DESIGN_W, height: DESIGN_H, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
     <div
       id="certificate-print-root"
-      className="relative mx-auto aspect-[297/210] w-full max-w-[1100px] overflow-hidden shadow-2xl"
+      className="font-cert relative h-full w-full overflow-hidden shadow-2xl"
       style={{ background: '#fdf9ee' }}
     >
       <div
@@ -204,9 +225,9 @@ export default function CertificateTemplate({ data, verifyUrl }: { data: Certifi
         }}
       />
 
-      <div className="absolute inset-[10px] border-[3px] sm:inset-4 sm:border-[5px]" style={{ borderColor: GOLD }} />
-      <div className="absolute inset-[16px] border sm:inset-6" style={{ borderColor: `${GOLD}99` }} />
-      <div className="absolute inset-[20px] border border-dashed opacity-40 sm:inset-7" style={{ borderColor: GOLD }} />
+      <div className="absolute inset-4 border-[5px]" style={{ borderColor: GOLD }} />
+      <div className="absolute border inset-6" style={{ borderColor: `${GOLD}99` }} />
+      <div className="absolute border border-dashed opacity-40 inset-7" style={{ borderColor: GOLD }} />
 
       <CornerFlourish position="tl" />
       <CornerFlourish position="tr" />
@@ -214,56 +235,56 @@ export default function CertificateTemplate({ data, verifyUrl }: { data: Certifi
       <CornerFlourish position="br" />
 
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.035]">
-        <span className="font-display text-[16vw] font-bold tracking-widest" style={{ color: RED }}>
+        <span className="font-display text-[176px] font-bold tracking-widest" style={{ color: RED }}>
           CFA
         </span>
       </div>
 
-      <div className="relative flex h-full flex-col items-center px-[9%] pb-[4%] pt-[4.5%] text-center sm:px-[10%]">
+      <div className="relative flex h-full flex-col items-center pb-[6.5%] pt-[4.5%] text-center px-[10%]">
         <div className="flex w-full items-start justify-between">
           <LogoMark />
           <div className="text-right">
-            <p className="text-[7px] font-bold tracking-[0.25em] sm:text-[10px]" style={{ color: RED }}>
+            <p className="font-bold tracking-[0.25em] text-[10px]" style={{ color: RED }}>
               LEARN&nbsp;&nbsp;&bull;&nbsp;&nbsp;BUILD&nbsp;&nbsp;&bull;&nbsp;&nbsp;INNOVATE
             </p>
             <GoldLineDiamond className="mt-1.5 justify-end" />
           </div>
         </div>
 
-        <div className="mt-[2.5%]">
+        <div className="mt-[1.5%]">
           <h1
-            className="font-display text-[9.5vw] font-bold leading-none tracking-wide sm:text-[84px]"
+            className="font-display font-bold leading-none tracking-wide text-[72px]"
             style={{ color: INK }}
           >
             CERTIFICATE
           </h1>
-          <p className="mt-1.5 text-[10px] font-bold tracking-[0.5em] sm:text-base" style={{ color: RED }}>
+          <p className="mt-3 font-bold tracking-[0.5em] text-base" style={{ color: RED }}>
             OF COMPLETION
           </p>
           <GoldLineDiamond className="mx-auto mt-2.5 justify-center" />
         </div>
 
-        <p className="mt-[3%] text-[8.5px] tracking-[0.3em] text-black/50 sm:text-sm">
+        <p className="mt-[2%] tracking-[0.3em] text-black/50 text-sm">
           THIS CERTIFICATE IS PROUDLY PRESENTED TO
         </p>
 
-        <h2 className="font-script mt-1.5 text-[10vw] leading-none sm:text-7xl" style={{ color: RED }}>
+        <h2 className="font-script mt-1 leading-none text-[64px]" style={{ color: RED }}>
           {data.studentName}
         </h2>
 
         <GoldLineDiamond className="mx-auto mt-3 justify-center" />
 
-        <p className="mt-[2.5%] text-[8.5px] tracking-[0.25em] text-black/50 sm:text-sm">
+        <p className="mt-[1.8%] tracking-[0.25em] text-black/50 text-sm">
           FOR SUCCESSFULLY COMPLETING THE COURSE
         </p>
-        <h3 className="mt-1.5 font-display text-[3.6vw] font-bold sm:text-3xl" style={{ color: INK }}>
+        <h3 className="mt-1.5 font-display font-bold text-3xl" style={{ color: INK }}>
           {data.courseTitle}
         </h3>
 
-        <div className="mt-3 flex items-center gap-3 sm:mt-4 sm:gap-4">
-          <span className="h-px w-8 sm:w-16" style={{ background: GOLD }} />
+        <div className="flex items-center mt-4 gap-4">
+          <span className="h-px w-16" style={{ background: GOLD }} />
           <span
-            className="px-4 py-1.5 text-[8.5px] font-bold tracking-[0.2em] text-white sm:px-7 sm:py-2 sm:text-sm"
+            className="font-bold tracking-[0.2em] text-white px-7 py-2 text-sm"
             style={{
               background: RED,
               clipPath: 'polygon(4% 0, 96% 0, 100% 50%, 96% 100%, 4% 100%, 0 50%)'
@@ -271,22 +292,22 @@ export default function CertificateTemplate({ data, verifyUrl }: { data: Certifi
           >
             {data.courseLevel} LEVEL
           </span>
-          <span className="h-px w-8 sm:w-16" style={{ background: GOLD }} />
+          <span className="h-px w-16" style={{ background: GOLD }} />
         </div>
 
-        <p className="mx-auto mt-[3%] max-w-lg text-[7.5px] leading-relaxed text-black/55 sm:text-xs">
+        <p className="mx-auto mt-[2%] max-w-lg leading-relaxed text-black/55 text-xs">
           And has demonstrated exceptional dedication, consistent effort, and a strong understanding of the
           concepts and practical skills required to excel in this domain.
         </p>
 
-        <div className="pointer-events-none absolute left-[3%] top-[34%] h-[26%] w-[19%] sm:left-[4%]">
+        <div className="pointer-events-none absolute top-[35%] h-[26%] w-[19%] left-[4%]">
           <LaurelWreath />
         </div>
-        <div className="absolute right-[3%] top-[36%] flex w-[14%] flex-col items-center gap-2 sm:right-[4%]">
-          <div className="border bg-white/70 p-1.5" style={{ borderColor: GOLD }}>
-            <QRCodeCanvas value={verifyUrl} size={64} bgColor="#ffffff" fgColor="#141416" includeMargin={false} />
+        <div className="absolute top-[35.5%] flex w-[16%] flex-col items-center gap-2.5 right-[4%]">
+          <div className="border bg-white/80 p-2" style={{ borderColor: GOLD }}>
+            <QRCodeCanvas value={verifyUrl} size={104} bgColor="#ffffff" fgColor="#141416" includeMargin={false} />
           </div>
-          <p className="text-[6.5px] font-bold leading-tight tracking-wide sm:text-[9px]" style={{ color: INK }}>
+          <p className="font-bold leading-tight tracking-wide text-[10px]" style={{ color: INK }}>
             SCAN TO VERIFY
             <br />
             THIS CERTIFICATE
@@ -295,14 +316,14 @@ export default function CertificateTemplate({ data, verifyUrl }: { data: Certifi
 
         <div className="mt-auto grid w-full grid-cols-3 items-end pt-[3%]">
           <div className="text-left">
-            <p className="font-script text-lg sm:text-2xl" style={{ color: INK }}>
+            <p className="font-script text-2xl" style={{ color: INK }}>
               A. Forge
             </p>
-            <div className="mt-1 h-px w-24 sm:w-32" style={{ background: `${INK}55` }} />
-            <p className="mt-1 text-[7px] font-bold tracking-wider sm:text-[10px]" style={{ color: RED }}>
+            <div className="mt-1 h-px w-32" style={{ background: `${INK}55` }} />
+            <p className="mt-1 font-bold tracking-wider text-[10px]" style={{ color: RED }}>
               FOUNDER &amp; CEO
             </p>
-            <p className="text-[7px] font-bold tracking-wider sm:text-[10px]" style={{ color: INK }}>
+            <p className="font-bold tracking-wider text-[10px]" style={{ color: INK }}>
               CODEFORGE ACADEMY
             </p>
           </div>
@@ -312,17 +333,19 @@ export default function CertificateTemplate({ data, verifyUrl }: { data: Certifi
           </div>
 
           <div className="text-right">
-            <p className="text-[7px] font-bold tracking-wider text-black/50 sm:text-[10px]">CERTIFICATE NO.</p>
-            <p className="font-display text-[10px] font-bold sm:text-sm" style={{ color: RED }}>
+            <p className="font-bold tracking-wider text-black/50 text-[10px]">CERTIFICATE NO.</p>
+            <p className="font-display font-bold text-sm" style={{ color: RED }}>
               {data.certificateNo}
             </p>
-            <p className="mt-1.5 text-[7px] font-bold tracking-wider text-black/50 sm:text-[10px]">DATE ISSUED</p>
-            <p className="text-[9px] font-semibold sm:text-xs" style={{ color: INK }}>
+            <p className="mt-1.5 font-bold tracking-wider text-black/50 text-[10px]">DATE ISSUED</p>
+            <p className="font-semibold text-xs" style={{ color: INK }}>
               {issuedDate}
             </p>
           </div>
         </div>
       </div>
+    </div>
+    </div>
     </div>
   );
 }

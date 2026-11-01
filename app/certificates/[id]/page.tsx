@@ -39,16 +39,27 @@ export default function CertificatePage() {
       : '';
 
   const handleDownload = async () => {
-    if (!wrapperRef.current || !certificate) return;
+    const target = document.getElementById('certificate-print-root');
+    if (!target || !certificate) return;
     setDownloading(true);
     try {
       const html2canvas = (await import('html2canvas')).default;
       const { jsPDF } = await import('jspdf');
 
-      const canvas = await html2canvas(wrapperRef.current, {
+      const canvas = await html2canvas(target, {
         scale: 3,
         backgroundColor: '#f8f7f4',
-        useCORS: true
+        useCORS: true,
+        // Capture at the certificate's full design size, not the scaled-down on-screen size
+        onclone: (doc) => {
+          const scaler = doc.querySelector('.cert-scaler') as HTMLElement | null;
+          const holder = doc.querySelector('.cert-holder') as HTMLElement | null;
+          if (scaler) scaler.style.transform = 'none';
+          if (holder) {
+            holder.style.height = 'auto';
+            holder.style.maxWidth = 'none';
+          }
+        }
       });
 
       const imgData = canvas.toDataURL('image/png', 1.0);

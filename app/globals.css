@@ -72,6 +72,19 @@ h1, h2, h3, .font-display {
   border-radius: 999px;
 }
 
+/* ---------- Certificate keeps its own classic serif look ---------- */
+.font-cert,
+.font-cert h1,
+.font-cert h2,
+.font-cert h3,
+.font-cert .font-display {
+  font-family: var(--font-cert), 'Playfair Display', Georgia, serif;
+  letter-spacing: normal;
+}
+.font-cert .font-script {
+  font-family: var(--font-script), 'Dancing Script', cursive;
+}
+
 /* ---------- Dynamic island navigation (phones) ---------- */
 .island {
   background: rgba(8, 12, 32, 0.78);
@@ -136,5 +149,16 @@ h1, h2, h3, .font-display {
 
   .no-print {
     display: none !important;
+  }
+
+  .cert-holder {
+    height: auto !important;
+    max-width: none !important;
+  }
+
+  .cert-scaler {
+    transform: none !important;
+    width: auto !important;
+    height: auto !important;
   }
 }
