@@ -70,7 +70,8 @@ export default function StudentTestsPage() {
 
             return (
               <Card key={t.id}>
-                <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex min-w-0 flex-1 items-start gap-4">
                   <Ring
                     value={t.status === 'open' || t.inProgressAttemptId ? 100 : 0}
                     size={64}
@@ -100,7 +101,8 @@ export default function StudentTestsPage() {
                       {t.status === 'open' && t.closesAt && <Badge tone="gold">Closes {fmt(t.closesAt)}</Badge>}
                     </div>
                   </div>
-                  <div className="text-right">
+                  </div>
+                  <div className="sm:text-right">
                     {t.canStart ? (
                       <Link href={`/take-test/${t.id}`}>
                         <Button variant={t.inProgressAttemptId ? 'primary' : 'gold'} className="!px-5 !py-2.5">

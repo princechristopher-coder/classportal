@@ -79,7 +79,7 @@ export function Badge({
     gray: 'bg-white/10 text-white/60 border-white/20'
   };
   return (
-    <span className={clsx('inline-flex items-center rounded-full border px-3 py-0.5 text-xs font-medium', tones[tone])}>
+    <span className={clsx('inline-flex items-center whitespace-nowrap rounded-full border px-3 py-0.5 text-xs font-medium', tones[tone])}>
       {children}
     </span>
   );
